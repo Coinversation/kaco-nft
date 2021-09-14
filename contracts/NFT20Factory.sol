@@ -26,10 +26,15 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
     //referral => feeRate
     mapping(address => uint256) private referrals;
 
-    event pairCreated(
+    event PairCreated(
         address indexed originalNFT,
         address newPair,
         uint256 _type
+    );
+
+    event RefFeeModified(
+        address indexed referral,
+        uint256 fee
     );
 
     using AddressUpgradeable for address;
@@ -39,6 +44,10 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
     bool public flashLoansEnabled;
 
     constructor() {}
+
+    function initialize() public initializer {
+        OwnableUpgradeable.__Ownable_init();
+    }
 
     function nft20Pair(
         string memory name,
@@ -62,7 +71,7 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
         nftToToken[_nftOrigin] = instance;
         indexToNft[counter] = _nftOrigin;
         counter = counter + 1;
-        emit pairCreated(_nftOrigin, instance, _nftType);
+        emit PairCreated(_nftOrigin, instance, _nftType);
     }
 
     function getPairByIndex(uint256 index)
@@ -119,6 +128,7 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
     function setReferralFee(address referral, uint256 _fee) external onlyOwner {
         require(_fee <= fee, "fee too high");
         referrals[referral] = _fee;
+        emit RefFeeModified(referral, _fee);
     }
 
     function getReferralFee(address referral) external view returns (uint256) {

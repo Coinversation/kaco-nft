@@ -36,15 +36,15 @@
   },
   "proxies": [
     {
-      "address": "0xFf509D0E7191f08e77bCaF21A8DA758050d1b81f",
-      "txHash": "0xf68814b75db827ef44e9b3028a311c37c471b8393e81aeec38ed507e8d734ae8",
+      "address": "0x8B19B61931a08C7dD12c494A7e90b5c13d39C9a3",
+      "txHash": "0x0d0f8ed1538c115283901289b6aca50d5cf872939ed605153b3b7160d9265b59",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "a5d130ffaf2b867957c9a2b99af5215f8baf2ee92a273a170919b6bff1d621f2": {
-      "address": "0xF72B3F01697B292E12DAfc68C8C894728811D20B",
-      "txHash": "0x3fbf14e2c0f9da1a44499aae5c740b6b142d0feb31ba6609b21dfa48b4b89620",
+    "f14b2d9b9b845af9c18a75a5e5f3bccfe614a6edb507d97bf720ea456eac12f4": {
+      "address": "0xa2835FEDCBbcE70A3e54BEe3d415946d1eeFb1C3",
+      "txHash": "0x8912920d1e3b905ca6f73692f6911b3ff64cb22af3733a7d80677c003d7f8bd6",
       "layout": {
         "storage": [
           {
@@ -117,13 +117,13 @@
             "contract": "NFT20Factory",
             "label": "logic",
             "type": "t_address",
-            "src": "contracts/NFT20Factory.sol:36"
+            "src": "contracts/NFT20Factory.sol:41"
           },
           {
             "contract": "NFT20Factory",
             "label": "flashLoansEnabled",
             "type": "t_bool",
-            "src": "contracts/NFT20Factory.sol:39"
+            "src": "contracts/NFT20Factory.sol:44"
           }
         ],
         "types": {

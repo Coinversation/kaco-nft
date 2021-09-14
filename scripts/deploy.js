@@ -15,8 +15,8 @@ async function main() {
 
   const NFT20Factory = await ethers.getContractFactory("NFT20Factory");
   console.log("Deploying Factory...");
-  const factoryInstance = await upgrades.deployProxy(NFT20Factory);
-  console.log("Box deployed to:", factoryInstance.address);
+  const factoryInstance = await upgrades.deployProxy(NFT20Factory, []);
+  console.log("factory deployed to:", factoryInstance.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
