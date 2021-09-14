@@ -4,6 +4,8 @@ require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 require("hardhat-gas-reporter");
 require("solidity-coverage");
+require('@openzeppelin/hardhat-upgrades');
+
 
 const { mnemonic, BSCSCANAPIKEY} = require('../secret.json');
 

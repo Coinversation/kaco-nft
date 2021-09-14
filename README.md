@@ -1,6 +1,6 @@
 # Kaco NFT
 
-This project is based on Hardhat, Openzeppelin and NFT20.
+This project is based on Hardhat, Openzeppelin and inspired by NFT20.
 
 
 # Hardhat Project Tasks
@@ -14,7 +14,7 @@ npx hardhat node
 npx hardhat help
 REPORT_GAS=true npx hardhat test
 npx hardhat coverage
-npx hardhat run scripts/deploy.js
+npx hardhat run --network testnet scripts/deploy.js
 node scripts/deploy.js
 npx eslint '**/*.js'
 npx eslint '**/*.js' --fix
