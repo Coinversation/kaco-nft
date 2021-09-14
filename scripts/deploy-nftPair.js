@@ -7,7 +7,7 @@ async function main() {
 
   const UpgradeableBeacon = await ethers.getContractFactory("UpgradeableBeacon");
   console.log("beacon Deploying...");
-  const beacon = await UpgradeableBeacon.deploy(pairInstance.address + "");
+  const beacon = await UpgradeableBeacon.deploy(String(pairInstance.address));
   console.log("beacon deployed to:", beacon.address);
 }
 
