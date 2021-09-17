@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155ReceiverU
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 import "./ERC20Upgradeable.sol";
+
 // import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
 interface IFactory {
@@ -31,7 +32,11 @@ interface IFlashLoanReceiver {
     ) external returns (bool);
 }
 
-contract NFT20Pair is ERC20Upgradeable, IERC721ReceiverUpgradeable, ERC1155ReceiverUpgradeable {
+contract NFT20Pair is
+    ERC20Upgradeable,
+    IERC721ReceiverUpgradeable,
+    ERC1155ReceiverUpgradeable
+{
     address public factory;
     address public nftAddress;
     uint256 public nftType;
@@ -144,6 +149,7 @@ contract NFT20Pair is ERC20Upgradeable, IERC721ReceiverUpgradeable, ERC1155Recei
         );
     }
 
+    //param _referral: 3rd party fee receival address
     function multi721Deposit(
         uint256[] memory _ids,
         address _receipient,
@@ -164,15 +170,15 @@ contract NFT20Pair is ERC20Upgradeable, IERC721ReceiverUpgradeable, ERC1155Recei
 
         // If referral exist, give refFee to referral
         if (refFee > 0) {
-            _mint(_referral, (nftValue * _ids.length) * refFee / 100);
-            _mint(feeTo, (nftValue * _ids.length) * (fee - refFee) / 100);
+            _mint(_referral, ((nftValue * _ids.length) * refFee) / 100);
+            _mint(feeTo, ((nftValue * _ids.length) * (fee - refFee)) / 100);
         } else {
-            _mint(feeTo, (nftValue * _ids.length) * fee / 100);
+            _mint(feeTo, ((nftValue * _ids.length) * fee) / 100);
         }
 
         _mint(
             _receipient,
-            (nftValue * _ids.length) * (uint256(100) - fee) / 100
+            ((nftValue * _ids.length) * (uint256(100) - fee)) / 100
         );
     }
 
@@ -226,6 +232,7 @@ contract NFT20Pair is ERC20Upgradeable, IERC721ReceiverUpgradeable, ERC1155Recei
         IERC721(nftAddress).safeTransferFrom(_from, _to, _tokenId);
     }
 
+    //param data: default is 0x0, if caller can collect fee, than could set like this: abiCoder.encode([ "address", "address" ], [ "referral address", "recipient address" ]);
     function onERC721Received(
         address operator,
         address,
@@ -241,13 +248,13 @@ contract NFT20Pair is ERC20Upgradeable, IERC721ReceiverUpgradeable, ERC1155Recei
         uint256 refFee = IFactory(factory).getReferralFee(referral);
         // If referral exist, give refFee to referral
         if (refFee > 0) {
-            _mint(referral, nftValue * refFee / 100);
-            _mint(feeTo, nftValue * (fee - refFee) / 100);
+            _mint(referral, (nftValue * refFee) / 100);
+            _mint(feeTo, (nftValue * (fee - refFee)) / 100);
         } else {
-            _mint(feeTo, nftValue * fee / 100);
+            _mint(feeTo, (nftValue * fee) / 100);
         }
 
-        _mint(recipient, nftValue * (uint256(100) - fee) / 100);
+        _mint(recipient, (nftValue * (uint256(100) - fee)) / 100);
         return this.onERC721Received.selector;
     }
 
@@ -263,20 +270,23 @@ contract NFT20Pair is ERC20Upgradeable, IERC721ReceiverUpgradeable, ERC1155Recei
             uint256 fee = IFactory(factory).fee();
             address feeTo = IFactory(factory).feeTo();
 
-            (address referral, address recipient) = decodeParams(data, operator);
+            (address referral, address recipient) = decodeParams(
+                data,
+                operator
+            );
 
             uint256 refFee = IFactory(factory).getReferralFee(referral);
             // If referral exist, give refFee to referral
             if (refFee > 0) {
-                _mint(referral, nftValue * value * refFee / 100);
-                _mint(feeTo, nftValue * value * (fee - refFee) / 100);
+                _mint(referral, (nftValue * value * refFee) / 100);
+                _mint(feeTo, (nftValue * value * (fee - refFee)) / 100);
             } else {
-                _mint(feeTo, nftValue * value * fee / 100);
+                _mint(feeTo, (nftValue * value * fee) / 100);
             }
 
             _mint(
                 recipient,
-                (nftValue * value) * (uint256(100) - fee) / (100)
+                ((nftValue * value) * (uint256(100) - fee)) / (100)
             );
         }
         return this.onERC1155Received.selector;
@@ -299,20 +309,23 @@ contract NFT20Pair is ERC20Upgradeable, IERC721ReceiverUpgradeable, ERC1155Recei
             uint256 fee = IFactory(factory).fee();
             address feeTo = IFactory(factory).feeTo();
 
-            (address referral, address recipient) = decodeParams(data, operator);
+            (address referral, address recipient) = decodeParams(
+                data,
+                operator
+            );
 
             uint256 refFee = IFactory(factory).getReferralFee(referral);
             // If referral exist, give refFee to referral
             if (refFee > 0) {
-                _mint(referral, nftValue * qty * refFee / 100);
-                _mint(feeTo, nftValue * qty * (fee - refFee) / 100);
+                _mint(referral, (nftValue * qty * refFee) / 100);
+                _mint(feeTo, (nftValue * qty * (fee - refFee)) / 100);
             } else {
-                _mint(feeTo, nftValue * qty * fee / 100);
+                _mint(feeTo, (nftValue * qty * fee) / 100);
             }
 
             _mint(
                 recipient,
-                (nftValue * qty) * (uint256(100) - (fee)) / (100)
+                ((nftValue * qty) * (uint256(100) - (fee))) / (100)
             );
         }
         return this.onERC1155BatchReceived.selector;
@@ -372,7 +385,7 @@ contract NFT20Pair is ERC20Upgradeable, IERC721ReceiverUpgradeable, ERC1155Recei
         uint256[] calldata _amounts,
         address _operator,
         bytes calldata _params
-    ) external flashloansEnabled() {
+    ) external flashloansEnabled {
         require(_ids.length < 80, "To many NFTs");
 
         if (nftType == 1155) {
