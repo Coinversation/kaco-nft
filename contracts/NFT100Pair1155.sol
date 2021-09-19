@@ -41,7 +41,7 @@ contract NFT100Pair1155 is
         address recipient
     ) external override {
         if (_tokenIds.length == 1) {
-            _burn(msg.sender, nftValue * amounts[0]);
+            _burn(_msgSender(), nftValue * amounts[0]);
             _withdraw1155(
                 address(this),
                 recipient,
@@ -80,7 +80,7 @@ contract NFT100Pair1155 is
             qty = qty + amounts[i];
         }
         // burn tokens
-        _burn(msg.sender, nftValue * qty);
+        _burn(_msgSender(), nftValue * qty);
 
         IERC1155(nftAddress).safeBatchTransferFrom(
             _from,
@@ -116,7 +116,7 @@ contract NFT100Pair1155 is
             "0x0"
         );
         IERC1155(nftAddress).safeBatchTransferFrom(
-            msg.sender,
+            _msgSender(),
             address(this),
             in_ids,
             in_amounts,
@@ -130,8 +130,8 @@ contract NFT100Pair1155 is
         uint256 id,
         uint256 value,
         bytes memory data
-    ) public virtual override returns (bytes4) {
-        require(nftAddress == msg.sender, "forbidden");
+    ) external virtual override returns (bytes4) {
+        require(nftAddress == _msgSender(), "forbidden");
         if (keccak256(data) != keccak256("INTERNAL")) {
             uint256 fee = IFactory(factory).fee();
             address feeTo = IFactory(factory).feeTo();
@@ -193,8 +193,8 @@ contract NFT100Pair1155 is
         uint256[] memory ids,
         uint256[] memory values,
         bytes memory data
-    ) public virtual override returns (bytes4) {
-        require(nftAddress == msg.sender, "forbidden");
+    ) external virtual override returns (bytes4) {
+        require(nftAddress == _msgSender(), "forbidden");
         if (keccak256(data) != keccak256("INTERNAL")) {
             uint256 qty = 0;
 
@@ -271,7 +271,7 @@ contract NFT100Pair1155 is
             IFlashLoanReceiver(_operator).executeOperation(
                 _ids,
                 _amounts,
-                msg.sender,
+                _msgSender(),
                 _params
             ),
             "Execution Failed"
