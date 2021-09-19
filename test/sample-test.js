@@ -1,14 +1,14 @@
 const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 
-let NFT20Factory;
+let NFT100Factory;
 let factoryInstance;
  
 // Start test block
 describe('Factory (proxy)', function () {
   beforeEach(async function () {
-    NFT20Factory = await ethers.getContractFactory("NFT20Factory");
-    factoryInstance = await upgrades.deployProxy(NFT20Factory);
+    NFT100Factory = await ethers.getContractFactory("NFT100Factory");
+    factoryInstance = await upgrades.deployProxy(NFT100Factory);
   });
  
   // Test case

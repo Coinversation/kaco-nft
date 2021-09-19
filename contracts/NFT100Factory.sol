@@ -8,12 +8,12 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
-import "../interfaces/INFT20Pair.sol";
+import "../interfaces/INFT100Common.sol";
 
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
 
-contract NFT20Factory is Initializable, OwnableUpgradeable {
+contract NFT100Factory is Initializable, OwnableUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     // keep track of nft address to pair address
@@ -23,6 +23,7 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
     uint256 public counter;
     uint256 public fee;
     address public feeTo;
+    uint256 public lockFeePerBlock; //unit int 0.0000000001
     //referral => feeRate
     mapping(address => uint256) private referrals;
 
@@ -37,8 +38,13 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
         uint256 fee
     );
 
+    event LockFeeModified(
+        uint256 feePerBlock
+    );
+
     using AddressUpgradeable for address;
-    address public logic;
+    address public logic721;
+    address public logic1155;
 
     // new store V5
     bool public flashLoansEnabled;
@@ -47,9 +53,10 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
 
     function initialize() public initializer {
         OwnableUpgradeable.__Ownable_init();
+        lockFeePerBlock = 347;
     }
 
-    function nft20Pair(
+    function nft100Pair(
         string memory name,
         string memory _symbol,
         address _nftOrigin,
@@ -64,8 +71,15 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
             _nftType
         );
 
-        address instance = address(new BeaconProxy(logic, ""));
-
+        address instance;
+        if(_nftType == 721){
+            instance = address(new BeaconProxy(logic721, ""));
+        }else if(_nftType == 1155){
+            instance = address(new BeaconProxy(logic1155, ""));
+        }else{
+            revert("invalid _nftType");
+        }
+        
         instance.functionCallWithValue(initData, msg.value);
 
         nftToToken[_nftOrigin] = instance;
@@ -78,7 +92,7 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
         public
         view
         returns (
-            address _nft20pair,
+            address _nft100pair,
             address _originalNft,
             uint256 _type,
             string memory _name,
@@ -87,8 +101,8 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
         )
     {
         _originalNft = indexToNft[index];
-        _nft20pair = nftToToken[_originalNft];
-        (_type, _name, _symbol, _supply) = INFT20Pair(_nft20pair).getInfos();
+        _nft100pair = nftToToken[_originalNft];
+        (_type, _name, _symbol, _supply) = INFT100Common(_nft100pair).getInfos();
     }
 
     // this is to set value in case we decided to change tokens given to a tokenizing project.
@@ -99,7 +113,7 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
         string calldata _symbol,
         uint256 _value
     ) external onlyOwner {
-        INFT20Pair(_pair).setParams(_nftType, _name, _symbol, _value);
+        INFT100Common(_pair).setParams(_nftType, _name, _symbol, _value);
     }
 
     function setFactorySettings(uint256 _fee, bool _allowFlashLoans, address _feeTo)
@@ -121,8 +135,12 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
         );
     }
 
-    function changeLogic(address _newLogic) external onlyOwner {
-        logic = _newLogic;
+    function changeLogic721(address _newLogic) external onlyOwner {
+        logic721 = _newLogic;
+    }
+
+    function changeLogic1155(address _newLogic) external onlyOwner {
+        logic1155 = _newLogic;
     }
 
     function setReferralFee(address referral, uint256 _fee) external onlyOwner {
@@ -135,6 +153,12 @@ contract NFT20Factory is Initializable, OwnableUpgradeable {
         uint256 f = referrals[referral];
         require(f <= fee, "bad fee");
         return f;
+    }
+
+    function setLockFeePerBlock(uint256 _lockFeePerBlock) external onlyOwner {
+        require(_lockFeePerBlock <= 3472, "lockFee too high"); //1% per day
+        lockFeePerBlock = _lockFeePerBlock;
+        emit LockFeeModified(lockFeePerBlock);
     }
 
     // NEW functions v6

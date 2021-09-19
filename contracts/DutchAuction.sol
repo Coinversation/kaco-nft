@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
-import "../interfaces/INFT20Pair.sol";
+import "../interfaces/INFT100Common.sol";
 
 contract DutchAuction is Ownable, ERC1155Holder, ERC721Holder {
     using SafeMath for uint256;
@@ -77,7 +77,7 @@ contract DutchAuction is Ownable, ERC1155Holder, ERC721Holder {
             _startingPrice > _endingPrice,
             "!starting price should be higher"
         ); //not sure about this, need to also check getCurrentPrice()
-        INFT20Pair nft20pair = INFT20Pair(_nft20Pair);
+        INFT100Common nft20pair = INFT100Common(_nft20Pair);
 
         if (nft20pair.nftType() == 721) {
             require(
@@ -173,7 +173,7 @@ contract DutchAuction is Ownable, ERC1155Holder, ERC721Holder {
         require(_bid >= price);
 
         uint256 auctionId_temp = auction.id;
-        INFT20Pair nft20Pair = INFT20Pair(auction.nft20Pair);
+        INFT100Common nft20Pair = INFT100Common(auction.nft20Pair);
 
         address seller = auction.seller;
         uint256 tokenId = auction.tokenId;
@@ -291,6 +291,6 @@ contract DutchAuction is Ownable, ERC1155Holder, ERC721Holder {
         address receiver,
         uint256 tokenAmount
     ) public onlyOwner {
-        INFT20Pair(tokenAddress).transfer(receiver, tokenAmount);
+        INFT100Common(tokenAddress).transfer(receiver, tokenAmount);
     }
 }

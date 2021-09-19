@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // Interface for our erc20 token
-interface INFT20Pair {
+interface INFT100Common {
     function totalSupply() external view returns (uint256);
 
     function balanceOf(address tokenOwner)
@@ -38,18 +38,6 @@ interface INFT20Pair {
     function nftType() external view returns (uint256);
 
     function nftAddress() external view returns (address);
-
-    function swap1155(
-        uint256[] calldata in_ids,
-        uint256[] calldata in_amounts,
-        uint256[] calldata out_ids,
-        uint256[] calldata out_amounts
-    ) external;
-
-    function swap721(uint256 _in, uint256 _out) external;
-
-    function multi721Deposit(uint256[] calldata _ids, address _referral)
-        external;
 
     function withdraw(
         uint256[] calldata _tokenIds,

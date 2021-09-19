@@ -1,8 +1,8 @@
 
 async function main() {
-  const NFT20Pair = await ethers.getContractFactory("NFT20Pair");
+  const NFT100Pair721 = await ethers.getContractFactory("NFT100Pair721");
   console.log("Pair Deploying...");
-  const pairInstance = await NFT20Pair.deploy();
+  const pairInstance = await NFT100Pair721.deploy();
   console.log("Pair deployed to:", pairInstance.address);
 
   const UpgradeableBeacon = await ethers.getContractFactory("UpgradeableBeacon");

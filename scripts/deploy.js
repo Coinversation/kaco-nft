@@ -13,9 +13,9 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  const NFT20Factory = await ethers.getContractFactory("NFT20Factory");
+  const NFT100Factory = await ethers.getContractFactory("NFT100Factory");
   console.log("Deploying Factory...");
-  const factoryInstance = await upgrades.deployProxy(NFT20Factory, []);
+  const factoryInstance = await upgrades.deployProxy(NFT100Factory, []);
   console.log("factory deployed to:", factoryInstance.address);
 }
 

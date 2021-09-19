@@ -15,9 +15,9 @@ async function main() {
 //   await hre.run('compile');
 
   // We get the contract to deploy
-  const NFT20Pair = await ethers.getContractAt("NFT20Pair", "0x232d2464211903B045a09414f47bE4C826a25cd0");
-  await NFT20Pair.multi721Deposit([2], "0xFB83a67784F110dC658B19515308A7a95c2bA33A", "0xFB83a67784F110dC658B19515308A7a95c2bA33A");
-  const result = await NFT20Pair.totalSupply();
+  const NFT100Pair721 = await ethers.getContractAt("NFT100Pair721", "0x232d2464211903B045a09414f47bE4C826a25cd0");
+  await NFT100Pair721.multi721Deposit([2], "0xFB83a67784F110dC658B19515308A7a95c2bA33A", "0xFB83a67784F110dC658B19515308A7a95c2bA33A");
+  const result = await NFT100Pair721.totalSupply();
 
   console.log("result:", result);
 }
