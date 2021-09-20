@@ -29,6 +29,7 @@ contract NFT100Pair721 is
         __NFT100Common_init_(_name, _symbol, _nftAddress, 721);
     }
 
+    //return: (id[], LockInfo[])
     function getLockInfos() external view returns (uint256[] memory, LockInfo[] memory){
         return lockInfos.entries();
     }
@@ -166,39 +167,39 @@ contract NFT100Pair721 is
         return this.onERC721Received.selector;
     }
 
-    function flashLoan(
-        uint256[] calldata _ids,
-        uint256[] calldata _amounts,
-        address _operator,
-        bytes calldata _params
-    ) external override flashloansEnabled {
-        require(_ids.length < 80, "To many NFTs");
+    // function flashLoan(
+    //     uint256[] calldata _ids,
+    //     uint256[] calldata _amounts,
+    //     address _operator,
+    //     bytes calldata _params
+    // ) external override flashloansEnabled {
+    //     require(_ids.length < 80, "To many NFTs");
 
-        for (uint8 index; index < _ids.length; index++) {
-            IERC721(nftAddress).safeTransferFrom(
-                address(this),
-                _operator,
-                _ids[index]
-            );
-        }
+    //     for (uint8 index; index < _ids.length; index++) {
+    //         IERC721(nftAddress).safeTransferFrom(
+    //             address(this),
+    //             _operator,
+    //             _ids[index]
+    //         );
+    //     }
         
-        require(
-            IFlashLoanReceiver(_operator).executeOperation(
-                _ids,
-                _amounts,
-                _msgSender(),
-                _params
-            ),
-            "Execution Failed"
-        );
+    //     require(
+    //         IFlashLoanReceiver(_operator).executeOperation(
+    //             _ids,
+    //             _amounts,
+    //             _msgSender(),
+    //             _params
+    //         ),
+    //         "Execution Failed"
+    //     );
 
-        for (uint8 index; index < _ids.length; index++) {
-            IERC721(nftAddress).transferFrom(
-                _operator,
-                address(this),
-                _ids[index]
-            );
-        }
+    //     for (uint8 index; index < _ids.length; index++) {
+    //         IERC721(nftAddress).transferFrom(
+    //             _operator,
+    //             address(this),
+    //             _ids[index]
+    //         );
+    //     }
         
-    }
+    // }
 }

@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import "../ERC20Upgradeable.sol";
 import "../../interfaces/IFactory.sol";
-import "../../interfaces/IFlashLoanReceiver.sol";
+// import "../../interfaces/IFlashLoanReceiver.sol";
 
 abstract contract NFT100Common is ERC20Upgradeable
 {
@@ -41,13 +41,13 @@ abstract contract NFT100Common is ERC20Upgradeable
         nftValue = 100 * 10**18;
     }
 
-    modifier flashloansEnabled() {
-        require(
-            IFactory(factory).flashLoansEnabled(),
-            "flashloans not allowed"
-        );
-        _;
-    }
+    // modifier flashloansEnabled() {
+    //     require(
+    //         IFactory(factory).flashLoansEnabled(),
+    //         "flashloans not allowed"
+    //     );
+    //     _;
+    // }
 
     function getInfos()
         public
@@ -152,10 +152,10 @@ abstract contract NFT100Common is ERC20Upgradeable
         return (referal, recipient, unlockBlocks);
     }
 
-    function flashLoan(
-        uint256[] calldata _ids,
-        uint256[] calldata _amounts,
-        address _operator,
-        bytes calldata _params
-    ) external virtual;
+    // function flashLoan(
+    //     uint256[] calldata _ids,
+    //     uint256[] calldata _amounts,
+    //     address _operator,
+    //     bytes calldata _params
+    // ) external virtual;
 }

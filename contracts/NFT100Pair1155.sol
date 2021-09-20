@@ -8,19 +8,17 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import "./libs/NFT100Common.sol";
+import "./libs/LockInfoMap1155.sol";
 
 contract NFT100Pair1155 is
     ERC1155ReceiverUpgradeable,
     NFT100Common
 {
-    using EnumerableSet for EnumerableSet.AddressSet;
-    
-    //ERC1155, id => [unlocker]
-    mapping(uint256 => EnumerableSet.AddressSet) private unlockers1155;
-    //ERC1155, abi.encodePacked(id, unlocker) => amount
-    mapping(bytes => uint256) public lockAmount;
-    //ERC1155, abi.encodePacked(id, unlocker) => blockNumber
-    mapping(bytes => uint24) public unlockBlock1155;
+
+    using LockInfoMap1155 for LockInfoMap1155.Map;
+    LockInfoMap1155.Map private lockInfoMap;
+
+    using SubLockInfoMap1155 for LockMap;
 
     // create new token
     constructor() {}
@@ -33,6 +31,14 @@ contract NFT100Pair1155 is
         __NFT100Common_init_(_name, _symbol, _nftAddress, 1155);
     }
 
+    //return: (id[], LockInfo[])
+    function getLockInfos() external view returns (LockInfo1155[] memory){
+        return lockInfoMap.entries();
+    }
+
+    function getAmountById(uint id) private view returns (uint){
+        return IERC1155(nftAddress).balanceOf(address(this), id);
+    }
 
     // withdraw nft and burn tokens
     function withdraw(
@@ -40,33 +46,29 @@ contract NFT100Pair1155 is
         uint256[] calldata amounts,
         address recipient
     ) external override {
-        if (_tokenIds.length == 1) {
-            _burn(_msgSender(), nftValue * amounts[0]);
-            _withdraw1155(
-                address(this),
-                recipient,
-                _tokenIds[0],
-                amounts[0]
-            );
-        } else {
-            _batchWithdraw1155(
-                address(this),
-                recipient,
-                _tokenIds,
-                amounts
-            );
+        require(_tokenIds.length == amounts.length, "ID != AM in length");
+        for(uint i = 0; i < _tokenIds.length; i++){
+            LockMap storage lm = lockInfoMap.get(_tokenIds[i]);
+            (address[] memory lockers, SubLockInfo[] memory subLockInfos) = lm.entries();
+            uint lockedAmount = 0;
+            for(uint j = 0; j < subLockInfos.length; j++){
+                if(subLockInfos[j].blockNum > block.number && lockers[j] != _msgSender()){
+                    lockedAmount += subLockInfos[j].amount;
+                }else if(subLockInfos[j].blockNum > 0){
+                    lm.remove(lockers[j]);
+                }
+            }
+            require(amounts[i] <= (getAmountById(_tokenIds[i]) - lockedAmount), "unlocked amount not enough");
         }
 
-        emit Withdraw(_tokenIds, amounts);
-    }
+        _batchWithdraw1155(
+            address(this),
+            recipient,
+            _tokenIds,
+            amounts
+        );
 
-    function _withdraw1155(
-        address _from,
-        address _to,
-        uint256 _tokenId,
-        uint256 value
-    ) internal {
-        IERC1155(nftAddress).safeTransferFrom(_from, _to, _tokenId, value, "");
+        emit Withdraw(_tokenIds, amounts);
     }
 
     function _batchWithdraw1155(
@@ -168,12 +170,12 @@ contract NFT100Pair1155 is
         uint256 id,
         uint256 amount,
         uint24 _unlockBlock) private returns (uint256){
-        bytes memory key = abi.encodePacked(id, operator);
-        require(unlockBlock1155[key] <= block.number, "1155 id still locked");
+        LockMap storage lm = lockInfoMap.get(id);
+        SubLockInfo storage subLockInfo = lm.get(operator);
+        require(subLockInfo.blockNum <= block.number, "1155 id still locked");
         uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
-        unlockers1155[id].add(operator);
-        lockAmount[key] = amount;
-        unlockBlock1155[key] = _unlockBlock;
+        subLockInfo.blockNum = _unlockBlock;
+        subLockInfo.amount = amount;
         return nftValue * amount * feePerBlock * (_unlockBlock - block.number) / 10000000000;
     }
 
@@ -238,51 +240,51 @@ contract NFT100Pair1155 is
         uint256[] memory amounts,
         uint24[] memory unlockBlocks) private returns (uint256){
         uint256 lockFee = 0;
-        require(ids.length == unlockBlocks.length, "unlockBlocks.length != ids.length");
+        require(ids.length == unlockBlocks.length, "UB.length != ids.length");
         uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
         for(uint i = 0; i < ids.length; i++){
-            bytes memory key = abi.encodePacked(ids[i], operator);
-            require(unlockBlock1155[key] <= block.number, "1155 ids still locked");
+            LockMap storage lm = lockInfoMap.get(ids[i]);
+            SubLockInfo storage subLockInfo = lm.get(operator);
+            require(subLockInfo.blockNum <= block.number, "1155 ids still locked");
             lockFee += nftValue * amounts[i] * feePerBlock * (unlockBlocks[i] - block.number) / 10000000000;
-            unlockers1155[ids[i]].add(operator);
-            lockAmount[key] = amounts[i];
-            unlockBlock1155[key] = unlockBlocks[i];
+            subLockInfo.blockNum = unlockBlocks[i];
+            subLockInfo.amount = amounts[i];
         }
         return lockFee;
     }
 
-    function flashLoan(
-        uint256[] calldata _ids,
-        uint256[] calldata _amounts,
-        address _operator,
-        bytes calldata _params
-    ) external override flashloansEnabled {
-        require(_ids.length < 80, "To many NFTs");
+    // function flashLoan(
+    //     uint256[] calldata _ids,
+    //     uint256[] calldata _amounts,
+    //     address _operator,
+    //     bytes calldata _params
+    // ) external override flashloansEnabled {
+    //     require(_ids.length < 80, "To many NFTs");
 
-        IERC1155(nftAddress).safeBatchTransferFrom(
-            address(this),
-            _operator,
-            _ids,
-            _amounts,
-            "0x0"
-        );
+    //     IERC1155(nftAddress).safeBatchTransferFrom(
+    //         address(this),
+    //         _operator,
+    //         _ids,
+    //         _amounts,
+    //         "0x0"
+    //     );
       
-        require(
-            IFlashLoanReceiver(_operator).executeOperation(
-                _ids,
-                _amounts,
-                _msgSender(),
-                _params
-            ),
-            "Execution Failed"
-        );
+    //     require(
+    //         IFlashLoanReceiver(_operator).executeOperation(
+    //             _ids,
+    //             _amounts,
+    //             _msgSender(),
+    //             _params
+    //         ),
+    //         "Execution Failed"
+    //     );
 
-        IERC1155(nftAddress).safeBatchTransferFrom(
-            _operator,
-            address(this),
-            _ids,
-            _amounts,
-            "INTERNAL"
-        );
-    }
+    //     IERC1155(nftAddress).safeBatchTransferFrom(
+    //         _operator,
+    //         address(this),
+    //         _ids,
+    //         _amounts,
+    //         "INTERNAL"
+    //     );
+    // }
 }

@@ -4,10 +4,14 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
+import "./SubLockInfoMap1155.sol";
 
-struct LockInfo {
-    uint24 blockNum;
+
+struct LockInfo1155 {
+    uint id;
     address unlocker;
+    uint24 blockNum;
+    uint amount;
 }
 
 /**
@@ -24,21 +28,22 @@ struct LockInfo {
  * ```
  * contract Example {
  *     // Add the library methods
- *     using LockInfoMap for LockInfoMap.Map;
+ *     using LockInfoMap1155 for LockInfoMap1155.Map;
  *
  *     // Declare a set state variable
- *     LockInfoMap.Map private myMap;
+ *     LockInfoMap1155.Map private myMap;
  * }
  * ```
  *
  */
-library LockInfoMap {
+library LockInfoMap1155 {
     using EnumerableSet for EnumerableSet.UintSet;
+    using SubLockInfoMap1155 for LockMap;
 
     struct Map {
         // Storage of keys
         EnumerableSet.UintSet _keys;
-        mapping(uint => LockInfo) _values;
+        mapping(uint => LockMap) _values;
     }
 
     /**
@@ -51,9 +56,11 @@ library LockInfoMap {
     function set(
         Map storage map,
         uint key,
-        LockInfo storage value
+        address locker,
+        SubLockInfo storage info
     ) internal returns (bool) {
-        map._values[key] = value;
+        LockMap storage lockMap = map._values[key];
+        lockMap.set(locker, info);
         return map._keys.add(key);
     }
 
@@ -91,7 +98,7 @@ library LockInfoMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Map storage map, uint256 index) internal view returns (uint, LockInfo storage) {
+    function at(Map storage map, uint256 index) internal view returns (uint, LockMap storage) {
         uint key = map._keys.at(index);
         return (key, map._values[key]);
     }
@@ -100,19 +107,31 @@ library LockInfoMap {
      * @dev Returns the value associated with `key`.  O(1).
      * todo what will return if key not exist?
      */
-    function get(Map storage map, uint key) internal view returns (LockInfo storage) {
+    function get(Map storage map, uint key) internal view returns (LockMap storage) {
         return map._values[key];
     }
 
     function entries(
         Map storage map
-    ) internal view returns (uint[] memory, LockInfo[] memory) {
+    ) internal view returns (LockInfo1155[] memory) {
         uint len = map._keys.length();
         uint[] memory myKeys = map._keys.values();
-        LockInfo[] memory myValues = new LockInfo[](len);
+        uint total = 0;
         for (uint i = 0; i < len; i++){
-            myValues[i] = map._values[myKeys[i]];
+            LockMap storage lm = map._values[myKeys[i]];
+            total += lm.length();
         }
-        return (myKeys, myValues);
+        LockInfo1155[] memory lockInfos = new LockInfo1155[](total);
+        uint counter = 0;
+        for (uint i = 0; i < len; i++){
+            LockMap storage lm = map._values[myKeys[i]];
+            (address[] memory lpAddresses, SubLockInfo[] memory lpSubLockInfos) = lm.entries();
+            uint lpLength = lpAddresses.length;
+            for (uint j = 0; j < lpLength; j++){
+                lockInfos[counter] = LockInfo1155(myKeys[i], lpAddresses[j], lpSubLockInfos[j].blockNum, lpSubLockInfos[j].amount);
+                counter++;
+            }
+        }
+        return lockInfos;
     }
 }
