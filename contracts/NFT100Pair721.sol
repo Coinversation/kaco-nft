@@ -23,7 +23,7 @@ contract NFT100Pair721 is
         string memory _name,
         string memory _symbol,
         address _nftAddress
-    ) public payable {
+    ) external payable {
         __NFT100Common_init_(_name, _symbol, _nftAddress, 721);
     }
 

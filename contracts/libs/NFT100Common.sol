@@ -35,7 +35,7 @@ abstract contract NFT100Common is ERC20Upgradeable
     }
     
     function getInfos()
-        public
+        external
         view
         returns (
             uint256 _type,
@@ -88,7 +88,7 @@ abstract contract NFT100Common is ERC20Upgradeable
     }
 
     function toAddress(bytes memory _bytes, uint256 _start)
-        internal
+        private
         pure
         returns (address)
     {
@@ -105,7 +105,7 @@ abstract contract NFT100Common is ERC20Upgradeable
     }
 
     function toUnlockNumbers(bytes memory _bytes, uint256 _start)
-        internal
+        private
         view
         returns (uint24[] memory)
     {
@@ -128,7 +128,7 @@ abstract contract NFT100Common is ERC20Upgradeable
     }
 
     function decodeParams(bytes memory data, address defaultRecipient)
-        public
+        internal
         view
         returns (
             address,

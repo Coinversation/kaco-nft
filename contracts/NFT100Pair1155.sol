@@ -25,7 +25,7 @@ contract NFT100Pair1155 is
         string memory _name,
         string memory _symbol,
         address _nftAddress
-    ) public payable {
+    ) external payable {
         __NFT100Common_init_(_name, _symbol, _nftAddress, 1155);
     }
 
@@ -145,7 +145,7 @@ contract NFT100Pair1155 is
         uint256[] memory ids,
         uint256[] memory values,
         bytes memory data
-    ) external virtual override returns (bytes4) {
+    ) external override returns (bytes4) {
         require(nftAddress == _msgSender(), "forbidden");
         if (keccak256(data) != keccak256("INTERNAL")) {
             uint256 qty = 0;
