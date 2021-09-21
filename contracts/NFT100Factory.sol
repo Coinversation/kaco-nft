@@ -64,11 +64,10 @@ contract NFT100Factory is Initializable, OwnableUpgradeable {
     ) public payable {
         require(nftToToken[_nftOrigin] == address(0));
         bytes memory initData = abi.encodeWithSignature(
-            "init(string,string,address,uint256)",
+            "init(string,string,address)",
             name,
             _symbol,
-            _nftOrigin,
-            _nftType
+            _nftOrigin
         );
 
         address instance;
