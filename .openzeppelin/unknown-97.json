@@ -39,6 +39,31 @@
       "address": "0x8B19B61931a08C7dD12c494A7e90b5c13d39C9a3",
       "txHash": "0x0d0f8ed1538c115283901289b6aca50d5cf872939ed605153b3b7160d9265b59",
       "kind": "transparent"
+    },
+    {
+      "address": "0x0E18669ef493bf38648856a71a4A944c3565a6f4",
+      "txHash": "0xc70639499180e8c561bb5ca1422e3d6aea660f291756bd9524995901460db35a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xFB6Ae2A33e95C21d06A583D762BAfEC0F4967403",
+      "txHash": "0xd7c33228f8e7659a5aefc13dfce6713ae7ca1629a371da2fa21c1966e4efa0fa",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x099125736F75b5B027EC0F7AEa9AaEEF1Db22c20",
+      "txHash": "0x260c499efa798001d10df533edf06aa0d89055dd1497e6b31adb738126efd352",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xe82DD8Daa353cCCb5AC4B2c90A14C8aA35f9cca9",
+      "txHash": "0xdc4279944ef0ddec5e3dc6cdded62ba88fb2bdcfa0632360f69947297651e1b1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc7Dfd0e4C74466aB1161939707CEB921528c44F0",
+      "txHash": "0x669d6e58cd34a8da56addec70ab35f71ffc8b07f8c50b39fc2380c3b29d9b2e8",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -124,6 +149,254 @@
             "label": "flashLoansEnabled",
             "type": "t_bool",
             "src": "contracts/NFT20Factory.sol:44"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "44ec8c851cceed77aa912137a5c137b9dbdcffdbc6554a07edf4416aa6c65c33": {
+      "address": "0xE9179B6Fafe03AE37337bFee98c948904adce3Ce",
+      "txHash": "0x4970ba13e3558096c92fe0ccd5dfaae6bab921deda67718de07e1295beef18ef",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "nftToToken",
+            "type": "t_mapping(t_address,t_address)",
+            "src": "contracts/NFT100Factory.sol:20"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "indexToNft",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "contracts/NFT100Factory.sol:21"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "counter",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:23"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "fee",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:24"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "feeTo",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:25"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "lockFeePerBlock",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:26"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "referrals",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/NFT100Factory.sol:28"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "logic721",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:46"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "logic1155",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:47"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "flashLoansEnabled",
+            "type": "t_bool",
+            "src": "contracts/NFT100Factory.sol:50"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "bc5231acd39c04dd4270f8843cc1b462fcb0c090501f3f4959b59269cc54da0f": {
+      "address": "0x7810671fEAf1A7c0Ced9e448AB5772241fFbb0F6",
+      "txHash": "0xf5a8dfb989f019ad3613b2768b2d7a80742e5b8363c899940caf01d635f8c181",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "nftToToken",
+            "type": "t_mapping(t_address,t_address)",
+            "src": "contracts/NFT100Factory.sol:20"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "indexToNft",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "contracts/NFT100Factory.sol:21"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "counter",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:23"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "fee",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:24"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "feeTo",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:25"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "lockFeePerBlock",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:26"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "referrals",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/NFT100Factory.sol:28"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "logic721",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:46"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "logic1155",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:47"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "flashLoansEnabled",
+            "type": "t_bool",
+            "src": "contracts/NFT100Factory.sol:50"
           }
         ],
         "types": {

@@ -14,12 +14,22 @@ async function main() {
   // manually to make sure everything is compiled
 //   await hre.run('compile');
 
-  // We get the contract to deploy
-  const NFT100Pair721 = await ethers.getContractAt("NFT100Pair721", "0x232d2464211903B045a09414f47bE4C826a25cd0");
-  await NFT100Pair721.multi721Deposit([2], "0xFB83a67784F110dC658B19515308A7a95c2bA33A", "0xFB83a67784F110dC658B19515308A7a95c2bA33A");
-  const result = await NFT100Pair721.totalSupply();
+  const kacoNft = await ethers.getContractAt("ERC721PresetMinterPauserAutoId", "0xDD7698b02213eb713C183E03e82fF1A66AF6c17E");
+  for (let i = 0; i < 10; i++){
+    await kacoNft.mint("0xda9760C77805ea7257AeD5968769E79d2F4151E2");
+  }
+  console.log("mint 10 721:");
 
-  console.log("result:", result);
+  const alpacaNft = await ethers.getContractAt("ERC1155PresetMinterPauser", "0x5bbA2c99ff918f030D316ea4fD77EC166DDe0aFf");
+  await alpacaNft.mintBatch("0xda9760C77805ea7257AeD5968769E79d2F4151E2", [3,4,5,6], [100,200,300,400], "0x");
+  console.log("mint 3-6 1155:");
+
+  // const NFT100Pair721 = await ethers.getContractAt("NFT100Pair721", "0x3Ff2e308012460583ff1519bd504E940A46270C6");
+  // await NFT100Pair721.multi721Deposit([1], "0x");
+  // console.log("multi721Deposit");
+
+  // We get the contract to deploy
+  // alpacaNft.safeTransferFrom()
 }
 
 // We recommend this pattern to be able to use async/await everywhere
