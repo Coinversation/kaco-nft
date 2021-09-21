@@ -49,8 +49,11 @@ interface INFT100Common {
         uint256 _nftType,
         string calldata name,
         string calldata symbol,
-        uint256 value
+        uint256 value,
+        bool enableWhiteList
     ) external;
+
+    function addWhiteListIds(uint256[] calldata ids) external;
 
     function getInfos()
         external

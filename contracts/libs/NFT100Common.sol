@@ -1,19 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// ERC721
-import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-
-// ERC1155
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155ReceiverUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
 import "../ERC20Upgradeable.sol";
 import "../../interfaces/IFactory.sol";
-// import "../../interfaces/IFlashLoanReceiver.sol";
 
 abstract contract NFT100Common is ERC20Upgradeable
 {
@@ -21,6 +10,9 @@ abstract contract NFT100Common is ERC20Upgradeable
     address public nftAddress;
     uint256 public nftType;
     uint256 public nftValue;
+
+    bool public isWhiteListEnabled;
+    mapping(uint => bool) public whiteList;
 
     event Withdraw(uint256[] indexed _tokenIds, uint256[] indexed amounts);
 
@@ -39,16 +31,9 @@ abstract contract NFT100Common is ERC20Upgradeable
         nftType = _nftType;
         nftAddress = _nftAddress;
         nftValue = 100 * 10**18;
+        isWhiteListEnabled = false;
     }
-
-    // modifier flashloansEnabled() {
-    //     require(
-    //         IFactory(factory).flashLoansEnabled(),
-    //         "flashloans not allowed"
-    //     );
-    //     _;
-    // }
-
+    
     function getInfos()
         public
         view
@@ -77,13 +62,29 @@ abstract contract NFT100Common is ERC20Upgradeable
         uint256 _nftType,
         string calldata _name,
         string calldata _symbol,
-        uint256 _nftValue
+        uint256 _nftValue,
+        bool enableWhiteList
     ) external {
         require(msg.sender == factory, "unauthorized");
         nftType = _nftType;
         setName(_name);
         setSymbol(_symbol);
         nftValue = _nftValue;
+        isWhiteListEnabled = enableWhiteList;
+    }
+
+    function addWhiteListIds(uint256[] calldata ids) external {
+        require(msg.sender == factory, "unauthorized");
+        uint len = ids.length;
+        for(uint i; i < len; i++){
+            whiteList[ids[i]] = true;
+        }
+    }
+
+    function whiteListCheck(uint id) internal view{
+        if(isWhiteListEnabled){
+            require(whiteList[id], "blocked");
+        }
     }
 
     function toAddress(bytes memory _bytes, uint256 _start)
@@ -151,11 +152,4 @@ abstract contract NFT100Common is ERC20Upgradeable
         }
         return (referal, recipient, unlockBlocks);
     }
-
-    // function flashLoan(
-    //     uint256[] calldata _ids,
-    //     uint256[] calldata _amounts,
-    //     address _operator,
-    //     bytes calldata _params
-    // ) external virtual;
 }

@@ -111,9 +111,14 @@ contract NFT100Factory is Initializable, OwnableUpgradeable {
         uint256 _nftType,
         string calldata _name,
         string calldata _symbol,
-        uint256 _value
+        uint256 _value,
+        bool enableWhiteList
     ) external onlyOwner {
-        INFT100Common(_pair).setParams(_nftType, _name, _symbol, _value);
+        INFT100Common(_pair).setParams(_nftType, _name, _symbol, _value, enableWhiteList);
+    }
+
+    function addWhiteListIds(address _pair, uint256[] calldata ids) external {
+        INFT100Common(_pair).addWhiteListIds(ids);
     }
 
     function setFactorySettings(uint256 _fee, bool _allowFlashLoans, address _feeTo)

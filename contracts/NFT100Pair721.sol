@@ -5,8 +5,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
 import "./libs/NFT100Common.sol";
 import "./libs/LockInfoMap.sol";
 
@@ -43,7 +41,7 @@ contract NFT100Pair721 is
         _burn(_msgSender(), nftValue * _tokenIds.length);
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             checkLock(_tokenIds[i], _msgSender());
-            _withdraw721(address(this), recipient, _tokenIds[i]);
+            IERC721(nftAddress).safeTransferFrom(address(this), recipient, _tokenIds[i]);
         }
         emit Withdraw(_tokenIds, amounts);
     }
@@ -57,36 +55,15 @@ contract NFT100Pair721 is
         }
     }
 
-    function _withdraw721(
-        address _from,
-        address _to,
-        uint256 _tokenId
-    ) internal {
-        IERC721(nftAddress).safeTransferFrom(_from, _to, _tokenId);
-    }
-
-    function swap721(
-        uint256 _in,
-        uint256 _out,
-        address _receipient
-    ) external {
-        checkLock(_out, _msgSender());
-        IERC721(nftAddress).transferFrom(_msgSender(), address(this), _in);
-        IERC721(nftAddress).safeTransferFrom(address(this), _receipient, _out);
-    }
-
-
     //param _referral: 3rd party fee receival address
     function multi721Deposit(
         uint256[] memory _ids,
         bytes memory data
     ) external {
-        uint256 fee = IFactory(factory).fee();
-        address feeTo = IFactory(factory).feeTo();
-
         (address _referral, address _receipient, uint24[] memory unlockBlocks) = decodeParams(data, _msgSender());
 
         for (uint256 i = 0; i < _ids.length; i++) {
+            whiteListCheck(_ids[i]);
             IERC721(nftAddress).transferFrom(
                 _msgSender(),
                 address(this),
@@ -94,6 +71,8 @@ contract NFT100Pair721 is
             );
         }
 
+        uint256 fee = IFactory(factory).fee();
+        address feeTo = IFactory(factory).feeTo();
         uint256 refFee = IFactory(factory).getReferralFee(_referral);
         // If referral exist, give refFee to referral
         if (refFee > 0) {
@@ -138,6 +117,7 @@ contract NFT100Pair721 is
         bytes memory data
     ) external virtual override returns (bytes4) {
         require(nftAddress == _msgSender(), "forbidden");
+        whiteListCheck(tokenId);
         uint256 fee = IFactory(factory).fee();
         address feeTo = IFactory(factory).feeTo();
 
@@ -166,40 +146,4 @@ contract NFT100Pair721 is
         _mint(recipient, ((nftValue * (uint256(100) - fee)) / 100) - lockFee);
         return this.onERC721Received.selector;
     }
-
-    // function flashLoan(
-    //     uint256[] calldata _ids,
-    //     uint256[] calldata _amounts,
-    //     address _operator,
-    //     bytes calldata _params
-    // ) external override flashloansEnabled {
-    //     require(_ids.length < 80, "To many NFTs");
-
-    //     for (uint8 index; index < _ids.length; index++) {
-    //         IERC721(nftAddress).safeTransferFrom(
-    //             address(this),
-    //             _operator,
-    //             _ids[index]
-    //         );
-    //     }
-        
-    //     require(
-    //         IFlashLoanReceiver(_operator).executeOperation(
-    //             _ids,
-    //             _amounts,
-    //             _msgSender(),
-    //             _params
-    //         ),
-    //         "Execution Failed"
-    //     );
-
-    //     for (uint8 index; index < _ids.length; index++) {
-    //         IERC721(nftAddress).transferFrom(
-    //             _operator,
-    //             address(this),
-    //             _ids[index]
-    //         );
-    //     }
-        
-    // }
 }

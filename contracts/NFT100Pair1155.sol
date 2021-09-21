@@ -5,8 +5,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155ReceiverUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
 import "./libs/NFT100Common.sol";
 import "./libs/LockInfoMap1155.sol";
 
@@ -47,6 +45,7 @@ contract NFT100Pair1155 is
         address recipient
     ) external override {
         require(_tokenIds.length == amounts.length, "ID != AM in length");
+        uint256 qty = 0;
         for(uint i = 0; i < _tokenIds.length; i++){
             LockMap storage lm = lockInfoMap.get(_tokenIds[i]);
             (address[] memory lockers, SubLockInfo[] memory subLockInfos) = lm.entries();
@@ -58,72 +57,22 @@ contract NFT100Pair1155 is
                     lm.remove(lockers[j]);
                 }
             }
-            require(amounts[i] <= (getAmountById(_tokenIds[i]) - lockedAmount), "unlocked amount not enough");
-        }
-
-        _batchWithdraw1155(
-            address(this),
-            recipient,
-            _tokenIds,
-            amounts
-        );
-
-        emit Withdraw(_tokenIds, amounts);
-    }
-
-    function _batchWithdraw1155(
-        address _from,
-        address _to,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) internal {
-        uint256 qty = 0;
-        for (uint256 i = 0; i < ids.length; i++) {
+            require(amounts[i] <= (getAmountById(_tokenIds[i]) - lockedAmount), "amount not enough");
             qty = qty + amounts[i];
         }
+
         // burn tokens
         _burn(_msgSender(), nftValue * qty);
 
         IERC1155(nftAddress).safeBatchTransferFrom(
-            _from,
-            _to,
-            ids,
+            address(this),
+            recipient,
+            _tokenIds,
             amounts,
             "0x0"
         );
-    }
 
-    function swap1155(
-        uint256[] calldata in_ids,
-        uint256[] calldata in_amounts,
-        uint256[] calldata out_ids,
-        uint256[] calldata out_amounts,
-        address _receipient
-    ) external {
-        uint256 ins;
-        uint256 outs;
-
-        for (uint256 i = 0; i < out_ids.length; i++) {
-            ins = ins + (in_amounts[i]);
-            outs = outs + (out_amounts[i]);
-        }
-
-        require(ins == outs, "Need to swap same amount of NFTs");
-
-        IERC1155(nftAddress).safeBatchTransferFrom(
-            address(this),
-            _receipient,
-            out_ids,
-            out_amounts,
-            "0x0"
-        );
-        IERC1155(nftAddress).safeBatchTransferFrom(
-            _msgSender(),
-            address(this),
-            in_ids,
-            in_amounts,
-            "INTERNAL"
-        );
+        emit Withdraw(_tokenIds, amounts);
     }
 
     function onERC1155Received(
@@ -135,6 +84,7 @@ contract NFT100Pair1155 is
     ) external virtual override returns (bytes4) {
         require(nftAddress == _msgSender(), "forbidden");
         if (keccak256(data) != keccak256("INTERNAL")) {
+            whiteListCheck(id);
             uint256 fee = IFactory(factory).fee();
             address feeTo = IFactory(factory).feeTo();
 
@@ -200,8 +150,9 @@ contract NFT100Pair1155 is
         if (keccak256(data) != keccak256("INTERNAL")) {
             uint256 qty = 0;
 
-            require(ids.length == values.length, "ids.length != values.length");
+            require(ids.length == values.length, "ID != VA");
             for (uint256 i = 0; i < ids.length; i++) {
+                whiteListCheck(ids[i]);
                 qty = qty + values[i];
             }
             uint256 fee = IFactory(factory).fee();
@@ -252,39 +203,4 @@ contract NFT100Pair1155 is
         }
         return lockFee;
     }
-
-    // function flashLoan(
-    //     uint256[] calldata _ids,
-    //     uint256[] calldata _amounts,
-    //     address _operator,
-    //     bytes calldata _params
-    // ) external override flashloansEnabled {
-    //     require(_ids.length < 80, "To many NFTs");
-
-    //     IERC1155(nftAddress).safeBatchTransferFrom(
-    //         address(this),
-    //         _operator,
-    //         _ids,
-    //         _amounts,
-    //         "0x0"
-    //     );
-      
-    //     require(
-    //         IFlashLoanReceiver(_operator).executeOperation(
-    //             _ids,
-    //             _amounts,
-    //             _msgSender(),
-    //             _params
-    //         ),
-    //         "Execution Failed"
-    //     );
-
-    //     IERC1155(nftAddress).safeBatchTransferFrom(
-    //         _operator,
-    //         address(this),
-    //         _ids,
-    //         _amounts,
-    //         "INTERNAL"
-    //     );
-    // }
 }
