@@ -46,8 +46,6 @@ contract NFT100Factory is Initializable, OwnableUpgradeable {
     address public logic721;
     address public logic1155;
 
-    // new store V5
-    bool public flashLoansEnabled;
 
     constructor() {}
 
@@ -120,12 +118,11 @@ contract NFT100Factory is Initializable, OwnableUpgradeable {
         INFT100Common(_pair).addWhiteListIds(ids);
     }
 
-    function setFactorySettings(uint256 _fee, bool _allowFlashLoans, address _feeTo)
+    function setFactorySettings(uint256 _fee, address _feeTo)
         external
         onlyOwner
     {
         fee = _fee;
-        flashLoansEnabled = _allowFlashLoans;
         feeTo = _feeTo;
     }
 

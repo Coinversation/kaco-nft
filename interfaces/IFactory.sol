@@ -6,8 +6,6 @@ interface IFactory {
 
     function feeTo() external view returns (address);
 
-    function flashLoansEnabled() external view returns (bool);
-
     function getReferralFee(address) external view returns (uint256);
 
     function lockFeePerBlock() external view returns (uint256);
