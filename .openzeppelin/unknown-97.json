@@ -64,6 +64,11 @@
       "address": "0xc7Dfd0e4C74466aB1161939707CEB921528c44F0",
       "txHash": "0x669d6e58cd34a8da56addec70ab35f71ffc8b07f8c50b39fc2380c3b29d9b2e8",
       "kind": "transparent"
+    },
+    {
+      "address": "0x7C3343Ddb7Fd5cD2C8A421C5C22C44c396AD50B2",
+      "txHash": "0xb848a27ee0a69eda4a440b007e8c5c93fdad532ba643dcacc726a35febee89ac",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -423,6 +428,124 @@
           },
           "t_array(t_uint256)50_storage": {
             "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "a263db1a851c3500c5cad456559739d52bf36b7d30aa6869ff7ab070e204fdc5": {
+      "address": "0xf06ba688000f4eAc1d613B87Dd96282a3F43D2EB",
+      "txHash": "0xb96f52a7c4ff866d64a9aa06fb4d72933d25e81e10b60fb4c1823172bc76e557",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "nftToToken",
+            "type": "t_mapping(t_address,t_address)",
+            "src": "contracts/NFT100Factory.sol:20"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "indexToNft",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "contracts/NFT100Factory.sol:21"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "counter",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:23"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "fee",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:24"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "feeTo",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:25"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "lockFeePerBlock",
+            "type": "t_uint256",
+            "src": "contracts/NFT100Factory.sol:26"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "referrals",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/NFT100Factory.sol:28"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "logic721",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:46"
+          },
+          {
+            "contract": "NFT100Factory",
+            "label": "logic1155",
+            "type": "t_address",
+            "src": "contracts/NFT100Factory.sol:47"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
           }
         }
       }

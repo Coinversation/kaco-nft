@@ -74,18 +74,18 @@ contract NFT100Pair721 is
         uint256 fee = IFactory(factory).fee();
         address feeTo = IFactory(factory).feeTo();
         uint256 refFee = IFactory(factory).getReferralFee(_referral);
-        // If referral exist, give refFee to referral
-        if (refFee > 0) {
-            _mint(_referral, ((nftValue * _ids.length) * refFee) / 100);
-            _mint(feeTo, ((nftValue * _ids.length) * (fee - refFee)) / 100);
-        } else {
-            _mint(feeTo, ((nftValue * _ids.length) * fee) / 100);
-        }
 
         uint256 lockFee = 0;
         if(unlockBlocks.length > 0){
             lockFee = setLockBlocks(_msgSender(), _ids, unlockBlocks);
-            _mint(feeTo, lockFee);
+        }
+
+        // If referral exist, give refFee to referral
+        if (refFee > 0) {
+            _mint(_referral, ((nftValue * _ids.length) * refFee) / 100);
+            _mint(feeTo, ((nftValue * _ids.length) * (fee - refFee)) / 100 + lockFee);
+        } else {
+            _mint(feeTo, ((nftValue * _ids.length) * fee) / 100 + lockFee);
         }
 
         _mint(
@@ -106,6 +106,7 @@ contract NFT100Pair721 is
             lockFee += nftValue * feePerBlock * (unlockBlocks[i] - block.number) / 10000000000;
             info.blockNum = unlockBlocks[i];
             info.unlocker = operator;
+            lockInfos.set(ids[i], info);
         }
         return lockFee;
     }
@@ -123,24 +124,24 @@ contract NFT100Pair721 is
 
         (address referral, address recipient, uint24[] memory unlockBlocks) = decodeParams(data, operator);
 
-        uint256 refFee = IFactory(factory).getReferralFee(referral);
-        // If referral exist, give refFee to referral
-        if (refFee > 0) {
-            _mint(referral, (nftValue * refFee) / 100);
-            _mint(feeTo, (nftValue * (fee - refFee)) / 100);
-        } else {
-            _mint(feeTo, (nftValue * fee) / 100);
-        }
-
         uint256 lockFee = 0;
         if(unlockBlocks.length > 0){
             LockInfo storage info = lockInfos.get(tokenId);
             require(info.blockNum <= block.number, "721 still locked");
             uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
             lockFee = nftValue * feePerBlock * (unlockBlocks[0] - block.number) / 10000000000;
-            _mint(feeTo, lockFee);
             info.blockNum = unlockBlocks[0];
             info.unlocker = operator;
+            lockInfos.set(tokenId, info);
+        }
+        
+        uint256 refFee = IFactory(factory).getReferralFee(referral);
+        // If referral exist, give refFee to referral
+        if (refFee > 0) {
+            _mint(referral, (nftValue * refFee) / 100);
+            _mint(feeTo, (nftValue * (fee - refFee)) / 100 + lockFee);
+        } else {
+            _mint(feeTo, (nftValue * fee) / 100 + lockFee);
         }
 
         _mint(recipient, ((nftValue * (uint256(100) - fee)) / 100) - lockFee);

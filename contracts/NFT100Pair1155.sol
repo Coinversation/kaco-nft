@@ -93,19 +93,18 @@ contract NFT100Pair1155 is
                 operator
             );
 
+            uint256 lockFee = 0;
+            if(unlockBlocks.length > 0){
+                lockFee = setLockBlock1155(operator, id, value, unlockBlocks[0]);
+            }
+
             uint256 refFee = IFactory(factory).getReferralFee(referral);
             // If referral exist, give refFee to referral
             if (refFee > 0) {
                 _mint(referral, (nftValue * value * refFee) / 100);
-                _mint(feeTo, (nftValue * value * (fee - refFee)) / 100);
+                _mint(feeTo, (nftValue * value * (fee - refFee)) / 100 + lockFee);
             } else {
-                _mint(feeTo, (nftValue * value * fee) / 100);
-            }
-
-            uint256 lockFee = 0;
-            if(unlockBlocks.length > 0){
-                lockFee = setLockBlock1155(operator, id, value, unlockBlocks[0]);
-                _mint(feeTo, lockFee);
+                _mint(feeTo, (nftValue * value * fee) / 100 + lockFee);
             }
 
             _mint(
@@ -126,6 +125,7 @@ contract NFT100Pair1155 is
         uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
         subLockInfo.blockNum = _unlockBlock;
         subLockInfo.amount = amount;
+        lockInfoMap.set(id, operator, subLockInfo);
         return nftValue * amount * feePerBlock * (_unlockBlock - block.number) / 10000000000;
     }
 
@@ -163,19 +163,18 @@ contract NFT100Pair1155 is
                 operator
             );
 
+            uint256 lockFee = 0;
+            if(unlockBlocks.length > 0){
+                lockFee = setLockBlocks1155(operator, ids, values, unlockBlocks);
+            }
+
             uint256 refFee = IFactory(factory).getReferralFee(referral);
             // If referral exist, give refFee to referral
             if (refFee > 0) {
                 _mint(referral, (nftValue * qty * refFee) / 100);
-                _mint(feeTo, (nftValue * qty * (fee - refFee)) / 100);
+                _mint(feeTo, (nftValue * qty * (fee - refFee)) / 100 + lockFee);
             } else {
-                _mint(feeTo, (nftValue * qty * fee) / 100);
-            }
-
-            uint256 lockFee = 0;
-            if(unlockBlocks.length > 0){
-                lockFee = setLockBlocks1155(operator, ids, values, unlockBlocks);
-                _mint(feeTo, lockFee);
+                _mint(feeTo, (nftValue * qty * fee) / 100 + lockFee);
             }
 
             _mint(
@@ -200,6 +199,7 @@ contract NFT100Pair1155 is
             lockFee += nftValue * amounts[i] * feePerBlock * (unlockBlocks[i] - block.number) / 10000000000;
             subLockInfo.blockNum = unlockBlocks[i];
             subLockInfo.amount = amounts[i];
+            lockInfoMap.set(ids[i], operator, subLockInfo);
         }
         return lockFee;
     }

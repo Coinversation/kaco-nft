@@ -119,8 +119,8 @@ abstract contract NFT100Common is ERC20Upgradeable
                     0x10000000000000000000000000000000000000000000000000000000000
                 )
             }
-            require(num < block.number + 864000, "NFTPair: blockNumber too big");
-            require(num > block.number, "NFTPair: blockNumber too small");
+            require(num < block.number + 864000, "blockNum too big");
+            require(num > block.number, "blockNum too small");
             unlockNumbers[i] = num;
         }
 

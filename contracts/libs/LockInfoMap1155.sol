@@ -56,11 +56,11 @@ library LockInfoMap1155 {
     function set(
         Map storage map,
         uint key,
-        address locker,
+        address subKey,
         SubLockInfo storage info
     ) internal returns (bool) {
         LockMap storage lockMap = map._values[key];
-        lockMap.set(locker, info);
+        lockMap.set(subKey, info);
         return map._keys.add(key);
     }
 

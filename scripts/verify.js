@@ -8,7 +8,7 @@ const ethers = hre.ethers;
 
 async function main() {
     await hre.run("verify:verify", {
-        address: "0x7810671feaf1a7c0ced9e448ab5772241ffbb0f6",
+        address: "0xf06ba688000f4eac1d613b87dd96282a3f43d2eb",
         contract: "contracts/NFT100Factory.sol:NFT100Factory"
     });
 }
