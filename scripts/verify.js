@@ -7,10 +7,12 @@ const hre = require("hardhat");
 const ethers = hre.ethers;
 
 async function main() {
-    await hre.run("verify:verify", {
-        address: "0xf06ba688000f4eac1d613b87dd96282a3f43d2eb",
-        contract: "contracts/NFT100Factory.sol:NFT100Factory"
-    });
+  console.log("verifying...")
+  await hre.run("verify:verify", {
+      address: "0x65aDc52BfD0E3d9Df80Be6E36F330E757862e2Bd",
+      contract: "contracts/proxy/BeaconProxy.sol:BeaconProxy",
+      constructorArguments: ["0xcd6b723AFF8F57D01FE2FFD17B72f27c2A8398D7", "0x"]
+  });
 }
 
 // We recommend this pattern to be able to use async/await everywhere

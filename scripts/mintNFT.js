@@ -6,6 +6,12 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
 
+const alpacaNftAddress = "0x5bbA2c99ff918f030D316ea4fD77EC166DDe0aFf";
+const kacoNftAddress = "0xDD7698b02213eb713C183E03e82fF1A66AF6c17E";
+
+const userAddress = "0x9925a5a968a7291E85DF74b57F346b92D2De902C";
+const nft1155IdStart = 21;
+
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
@@ -14,15 +20,21 @@ async function main() {
   // manually to make sure everything is compiled
 //   await hre.run('compile');
 
-  const kacoNft = await ethers.getContractAt("ERC721PresetMinterPauserAutoId", "0xDD7698b02213eb713C183E03e82fF1A66AF6c17E");
+  const kacoNft = await ethers.getContractAt("ERC721PresetMinterPauserAutoId", kacoNftAddress);
   for (let i = 0; i < 10; i++){
-    await kacoNft.mint("0xda9760C77805ea7257AeD5968769E79d2F4151E2");
+    await kacoNft.mint(userAddress);
   }
   console.log("mint 10 721:");
 
-  const alpacaNft = await ethers.getContractAt("ERC1155PresetMinterPauser", "0x5bbA2c99ff918f030D316ea4fD77EC166DDe0aFf");
-  await alpacaNft.mintBatch("0xda9760C77805ea7257AeD5968769E79d2F4151E2", [3,4,5,6], [100,200,300,400], "0x");
-  console.log("mint 3-6 1155:");
+  const alpacaNft = await ethers.getContractAt("ERC1155PresetMinterPauser", alpacaNftAddress);
+  let ids = [];
+  let amounts = [];
+  for (let i = nft1155IdStart; i < 10; i++){
+    ids.push(i);
+    amounts.push(i * 100);
+  }
+  await alpacaNft.mintBatch(userAddress, ids, amounts, "0x");
+  console.log("mint 10 1155:");
 
   // const NFT100Pair721 = await ethers.getContractAt("NFT100Pair721", "0x3Ff2e308012460583ff1519bd504E940A46270C6");
   // await NFT100Pair721.multi721Deposit([1], "0x");
