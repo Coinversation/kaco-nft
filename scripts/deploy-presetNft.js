@@ -1,8 +1,9 @@
 
 async function main() {
-    const factoryAddress = "0x7C3343Ddb7Fd5cD2C8A421C5C22C44c396AD50B2";
-    const alpacaNftAddress = "0x5bbA2c99ff918f030D316ea4fD77EC166DDe0aFf";
-    const kacoNftAddress = "0xDD7698b02213eb713C183E03e82fF1A66AF6c17E";
+    const factoryAddress = "0x7bce4113838bC9609A0A96149c61B0ae811421b2";
+    const alpacaNftAddress = "0xe85d7b8f4c0c13806e158a1c9d7dcb33140cdc46";
+    const kacoNftAddress = "0x46F36F9FE211600417D9d24c014a154052ABC960";
+    const pancakeNftAddress = "0xdf7952b35f24acf7fc0487d01c8d5690a60dba07";
 
     // const NFT = await ethers.getContractFactory("ERC721PresetMinterPauserAutoId");
     // console.log("NFT Deploying...");
@@ -25,12 +26,12 @@ async function main() {
     const factory = NFT100Factory.attach(factoryAddress);
 
     console.log("creating nft100Pair...")
-    await factory.nft100Pair("ALPACA NFT100", "K-ALPACA", alpacaNftAddress, 1155);
+    await factory.nft100Pair("PANCAKE NFT100", "KCAKE", pancakeNftAddress, 721);
 
     await sleep(30000)
     console.log("nftToToken...")
-    const alpaca = await factory.nftToToken(alpacaNftAddress)
-    console.log("alpaca deployed to:", alpaca);
+    const nftPair = await factory.nftToToken(pancakeNftAddress)
+    console.log("nftPair deployed to:", nftPair);
 
     // await sleep(60000);
     // await hre.run("verify:verify", {
@@ -40,11 +41,11 @@ async function main() {
     // });
 
 
-    await factory.nft100Pair("KACO NFT100", "K-KACO", kacoNftAddress, 721);
+    // await factory.nft100Pair("KACO NFT100", "K-KACO", kacoNftAddress, 721);
 
-    await sleep(30000)
-    const kaco = await factory.nftToToken(kacoNftAddress)
-    console.log("kaco deployed to:", kaco);
+    // await sleep(30000)
+    // const kaco = await factory.nftToToken(kacoNftAddress)
+    // console.log("kaco deployed to:", kaco);
   }
 
   function sleep(ms) {

@@ -50,9 +50,8 @@ contract NFT100Pair721 is
         LockInfo storage info = lockInfos.get(id);
         if (info.blockNum > block.number && info.unlocker != operator){
             revert("721 locked");
-        } else if (info.blockNum > 0){
-            lockInfos.remove(id);
         }
+        lockInfos.remove(id);
     }
 
     //param _referral: 3rd party fee receival address
@@ -77,7 +76,14 @@ contract NFT100Pair721 is
 
         uint256 lockFee = 0;
         if(unlockBlocks.length > 0){
-            lockFee = setLockBlocks(_msgSender(), _ids, unlockBlocks);
+            require(_ids.length == unlockBlocks.length, "UB ID length not equal");
+            for(uint i = 0; i < _ids.length; i++){
+                lockFee += setLockBlock(_msgSender(), _ids[i], unlockBlocks[i]);
+            }
+        }else{
+            for(uint i = 0; i < _ids.length; i++){
+                setLockBlock(_msgSender(), _ids[i], 0);
+            }
         }
 
         // If referral exist, give refFee to referral
@@ -92,23 +98,6 @@ contract NFT100Pair721 is
             _receipient,
             ((nftValue * _ids.length) * (uint256(100) - fee)) / 100 - lockFee
         );
-    }
-
-    function setLockBlocks(address operator,
-        uint256[] memory ids,
-        uint24[] memory unlockBlocks) private returns (uint256){
-        uint256 lockFee = 0;
-        require(ids.length == unlockBlocks.length, "UB ID length not equal");
-        uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
-        for(uint i = 0; i < ids.length; i++){
-            LockInfo storage info = lockInfos.get(ids[i]);
-            require(info.blockNum <= block.number, "721 ids still locked");
-            lockFee += nftValue * feePerBlock * (unlockBlocks[i] - block.number) / 10000000000;
-            info.blockNum = unlockBlocks[i];
-            info.unlocker = operator;
-            lockInfos.set(ids[i], info);
-        }
-        return lockFee;
     }
 
     function onERC721Received(
@@ -126,13 +115,9 @@ contract NFT100Pair721 is
 
         uint256 lockFee = 0;
         if(unlockBlocks.length > 0){
-            LockInfo storage info = lockInfos.get(tokenId);
-            require(info.blockNum <= block.number, "721 still locked");
-            uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
-            lockFee = nftValue * feePerBlock * (unlockBlocks[0] - block.number) / 10000000000;
-            info.blockNum = unlockBlocks[0];
-            info.unlocker = operator;
-            lockInfos.set(tokenId, info);
+            lockFee = setLockBlock(operator, tokenId, unlockBlocks[0]);
+        }else{
+            setLockBlock(operator, tokenId, 0);
         }
         
         uint256 refFee = IFactory(factory).getReferralFee(referral);
@@ -146,5 +131,23 @@ contract NFT100Pair721 is
 
         _mint(recipient, ((nftValue * (uint256(100) - fee)) / 100) - lockFee);
         return this.onERC721Received.selector;
+    }
+
+    function setLockBlock(address operator,
+        uint256 id,
+        uint24 unlockBlock) private returns (uint256){
+        LockInfo storage info = lockInfos.get(id);
+        require(info.blockNum <= block.number, "still locked");
+        
+        if(unlockBlock == 0){
+            lockInfos.set(id, info);
+            return 0;
+        }else{
+            info.blockNum = unlockBlock;
+            info.unlocker = operator;
+            lockInfos.set(id, info);
+            uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
+            return nftValue * feePerBlock * (unlockBlock - block.number) / 10000000000;
+        }
     }
 }

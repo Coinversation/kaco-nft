@@ -49,15 +49,18 @@ contract NFT100Pair1155 is
         for(uint i = 0; i < _tokenIds.length; i++){
             LockMap storage lm = lockInfoMap.get(_tokenIds[i]);
             (address[] memory lockers, SubLockInfo[] memory subLockInfos) = lm.entries();
-            uint lockedAmount = 0;
+
+            uint unlockAmount;
             for(uint j = 0; j < subLockInfos.length; j++){
-                if(subLockInfos[j].blockNum > block.number && lockers[j] != _msgSender()){
-                    lockedAmount += subLockInfos[j].amount;
-                }else if(subLockInfos[j].blockNum > 0){
+                if(lockers[j] != address(0) && (subLockInfos[j].blockNum < block.number || lockers[j] == _msgSender())){
+                    unlockAmount += subLockInfos[j].amount;
                     lm.remove(lockers[j]);
                 }
             }
-            require(amounts[i] <= (getAmountById(_tokenIds[i]) - lockedAmount), "amount not enough");
+            SubLockInfo storage freeNft = lm.get(address(0));
+            freeNft.amount = freeNft.amount + unlockAmount - amounts[i];
+            lm.set(address(0), freeNft);
+            
             qty = qty + amounts[i];
         }
 
@@ -83,35 +86,35 @@ contract NFT100Pair1155 is
         bytes memory data
     ) external virtual override returns (bytes4) {
         require(nftAddress == _msgSender(), "forbidden");
-        if (keccak256(data) != keccak256("INTERNAL")) {
-            whiteListCheck(id);
-            uint256 fee = IFactory(factory).fee();
-            address feeTo = IFactory(factory).feeTo();
+        whiteListCheck(id);
+        uint256 fee = IFactory(factory).fee();
+        address feeTo = IFactory(factory).feeTo();
 
-            (address referral, address recipient, uint24[] memory unlockBlocks) = decodeParams(
-                data,
-                operator
-            );
+        (address referral, address recipient, uint24[] memory unlockBlocks) = decodeParams(
+            data,
+            operator
+        );
 
-            uint256 lockFee = 0;
-            if(unlockBlocks.length > 0){
-                lockFee = setLockBlock1155(operator, id, value, unlockBlocks[0]);
-            }
-
-            uint256 refFee = IFactory(factory).getReferralFee(referral);
-            // If referral exist, give refFee to referral
-            if (refFee > 0) {
-                _mint(referral, (nftValue * value * refFee) / 100);
-                _mint(feeTo, (nftValue * value * (fee - refFee)) / 100 + lockFee);
-            } else {
-                _mint(feeTo, (nftValue * value * fee) / 100 + lockFee);
-            }
-
-            _mint(
-                recipient,
-                (((nftValue * value) * (uint256(100) - fee)) / 100) - lockFee
-            );
+        uint256 lockFee = 0;
+        if(unlockBlocks.length > 0){
+            lockFee = setLockBlock1155(operator, id, value, unlockBlocks[0]);
+        }else{
+            lockFee = setLockBlock1155(operator, id, value, 0);
         }
+
+        uint256 refFee = IFactory(factory).getReferralFee(referral);
+        // If referral exist, give refFee to referral
+        if (refFee > 0) {
+            _mint(referral, (nftValue * value * refFee) / 100);
+            _mint(feeTo, (nftValue * value * (fee - refFee)) / 100 + lockFee);
+        } else {
+            _mint(feeTo, (nftValue * value * fee) / 100 + lockFee);
+        }
+
+        _mint(
+            recipient,
+            (((nftValue * value) * (uint256(100) - fee)) / 100) - lockFee
+        );
         return this.onERC1155Received.selector;
     }
 
@@ -120,13 +123,28 @@ contract NFT100Pair1155 is
         uint256 amount,
         uint24 _unlockBlock) private returns (uint256){
         LockMap storage lm = lockInfoMap.get(id);
-        SubLockInfo storage subLockInfo = lm.get(operator);
-        require(subLockInfo.blockNum <= block.number, "1155 id still locked");
-        uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
-        subLockInfo.blockNum = _unlockBlock;
-        subLockInfo.amount = amount;
-        lockInfoMap.set(id, operator, subLockInfo);
-        return nftValue * amount * feePerBlock * (_unlockBlock - block.number) / 10000000000;
+        SubLockInfo storage subLockInfo;
+        if(_unlockBlock == 0){
+            subLockInfo = lm.get(address(0));
+            subLockInfo.amount += amount;
+            lockInfoMap.set(id, address(0), subLockInfo);
+            return 0;
+        }else{
+            subLockInfo = lm.get(operator);
+            if(subLockInfo.blockNum > block.number){
+                revert("still locked");
+            }else if(subLockInfo.blockNum > 0){ //could delete this logic
+                SubLockInfo storage freeNft = lm.get(address(0));
+                freeNft.amount += subLockInfo.amount;
+                lockInfoMap.set(id, address(0), freeNft);
+            }
+            subLockInfo.blockNum = _unlockBlock;
+            subLockInfo.amount = amount;
+
+            lockInfoMap.set(id, operator, subLockInfo);
+            uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
+            return nftValue * amount * feePerBlock * (_unlockBlock - block.number) / 10000000000;
+        }
     }
 
     /* param data: default is "0x0". 
@@ -147,60 +165,46 @@ contract NFT100Pair1155 is
         bytes memory data
     ) external override returns (bytes4) {
         require(nftAddress == _msgSender(), "forbidden");
-        if (keccak256(data) != keccak256("INTERNAL")) {
-            uint256 qty = 0;
+        uint256 qty = 0;
 
-            require(ids.length == values.length, "ID != VA");
-            for (uint256 i = 0; i < ids.length; i++) {
-                whiteListCheck(ids[i]);
-                qty = qty + values[i];
-            }
-            uint256 fee = IFactory(factory).fee();
-            address feeTo = IFactory(factory).feeTo();
-
-            (address referral, address recipient, uint24[] memory unlockBlocks) = decodeParams(
-                data,
-                operator
-            );
-
-            uint256 lockFee = 0;
-            if(unlockBlocks.length > 0){
-                lockFee = setLockBlocks1155(operator, ids, values, unlockBlocks);
-            }
-
-            uint256 refFee = IFactory(factory).getReferralFee(referral);
-            // If referral exist, give refFee to referral
-            if (refFee > 0) {
-                _mint(referral, (nftValue * qty * refFee) / 100);
-                _mint(feeTo, (nftValue * qty * (fee - refFee)) / 100 + lockFee);
-            } else {
-                _mint(feeTo, (nftValue * qty * fee) / 100 + lockFee);
-            }
-
-            _mint(
-                recipient,
-                ((nftValue * qty) * (uint256(100) - (fee))) / 100 - lockFee
-            );
+        require(ids.length == values.length, "ID != VA");
+        for (uint256 i = 0; i < ids.length; i++) {
+            whiteListCheck(ids[i]);
+            qty = qty + values[i];
         }
-        return this.onERC1155BatchReceived.selector;
-    }
+        uint256 fee = IFactory(factory).fee();
+        address feeTo = IFactory(factory).feeTo();
 
-    function setLockBlocks1155(address operator,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        uint24[] memory unlockBlocks) private returns (uint256){
+        (address referral, address recipient, uint24[] memory unlockBlocks) = decodeParams(
+            data,
+            operator
+        );
+
         uint256 lockFee = 0;
-        require(ids.length == unlockBlocks.length, "UB.length != ids.length");
-        uint256 feePerBlock = IFactory(factory).lockFeePerBlock();
-        for(uint i = 0; i < ids.length; i++){
-            LockMap storage lm = lockInfoMap.get(ids[i]);
-            SubLockInfo storage subLockInfo = lm.get(operator);
-            require(subLockInfo.blockNum <= block.number, "1155 ids still locked");
-            lockFee += nftValue * amounts[i] * feePerBlock * (unlockBlocks[i] - block.number) / 10000000000;
-            subLockInfo.blockNum = unlockBlocks[i];
-            subLockInfo.amount = amounts[i];
-            lockInfoMap.set(ids[i], operator, subLockInfo);
+        if(unlockBlocks.length > 0){
+            require(ids.length == unlockBlocks.length, "UB!=ID");
+            for(uint i = 0; i < ids.length; i++){
+                lockFee += setLockBlock1155(operator, ids[i], values[i], unlockBlocks[i]);
+            }
+        }else{
+            for(uint i = 0; i < ids.length; i++){
+                setLockBlock1155(operator, ids[i], values[i], 0);
+            }
         }
-        return lockFee;
+
+        uint256 refFee = IFactory(factory).getReferralFee(referral);
+        // If referral exist, give refFee to referral
+        if (refFee > 0) {
+            _mint(referral, (nftValue * qty * refFee) / 100);
+            _mint(feeTo, (nftValue * qty * (fee - refFee)) / 100 + lockFee);
+        } else {
+            _mint(feeTo, (nftValue * qty * fee) / 100 + lockFee);
+        }
+
+        _mint(
+            recipient,
+            ((nftValue * qty) * (uint256(100) - (fee))) / 100 - lockFee
+        );
+        return this.onERC1155BatchReceived.selector;
     }
 }
