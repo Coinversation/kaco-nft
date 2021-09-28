@@ -29,7 +29,6 @@ contract NFT100Pair1155 is
         __NFT100Common_init_(_name, _symbol, _nftAddress, 1155);
     }
 
-    //return: (id[], LockInfo[])
     function getLockInfos() external view returns (LockInfo1155[] memory){
         return lockInfoMap.entries();
     }
@@ -58,8 +57,16 @@ contract NFT100Pair1155 is
                 }
             }
             SubLockInfo storage freeNft = lm.get(address(0));
-            freeNft.amount = freeNft.amount + unlockAmount - amounts[i];
-            lm.set(address(0), freeNft);
+            uint freeAmount = freeNft.amount + unlockAmount - amounts[i];
+            if(freeAmount == 0){
+                lm.remove(address(0));
+                if(lm.length() == 0){
+                    lockInfoMap.remove(_tokenIds[i]);
+                }
+            }else{
+                freeNft.amount = freeAmount;
+                lm.set(address(0), freeNft);
+            }
             
             qty = qty + amounts[i];
         }

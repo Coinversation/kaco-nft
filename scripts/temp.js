@@ -6,6 +6,7 @@ let factoryInstance;
 
 const FactoryAddress = "0x7bce4113838bC9609A0A96149c61B0ae811421b2";
 const kacoNftAddress = "0x46F36F9FE211600417D9d24c014a154052ABC960";
+const cakeNftAddress = "0xdf7952b35f24acf7fc0487d01c8d5690a60dba07";
 
 // const FactoryAddress = "0x7C3343Ddb7Fd5cD2C8A421C5C22C44c396AD50B2";
 // const kacoNftAddress = "0xDD7698b02213eb713C183E03e82fF1A66AF6c17E";
