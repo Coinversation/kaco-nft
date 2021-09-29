@@ -76,8 +76,11 @@ abstract contract NFT100Common is ERC20Upgradeable
     function addWhiteListIds(uint256[] calldata ids) external {
         require(msg.sender == factory, "unauthorized");
         uint len = ids.length;
-        for(uint i; i < len; i++){
-            whiteList[ids[i]] = true;
+        for(uint i; i < len; i = i + 2){
+            uint end = ids[i + 1];
+            for(uint id = ids[i]; id < end; id++){
+                whiteList[id] = true;
+            }
         }
     }
 
