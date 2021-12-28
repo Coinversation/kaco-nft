@@ -47,13 +47,13 @@ module.exports = {
     testnet: {
       url: "https://data-seed-prebsc-2-s3.binance.org:8545/",
       chainId: 97,
-      gasPrice: 20000000000,
+      gasPrice: 5000000000,
       accounts: {mnemonic: mnemonic}
     },
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
-      gasPrice: 20000000000,
+      gasPrice: 5000000000,
       accounts: {mnemonic: mnemonic}
     },
   },

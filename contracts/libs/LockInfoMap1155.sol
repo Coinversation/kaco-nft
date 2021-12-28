@@ -34,6 +34,8 @@ struct LockInfo1155 {
  *     LockInfoMap1155.Map private myMap;
  * }
  * ```
+ * the data structure is a double map:
+ * id -> address -> {unblockNum, amount}
  *
  */
 library LockInfoMap1155 {
@@ -112,18 +114,25 @@ library LockInfoMap1155 {
     }
 
     function entries(
-        Map storage map
+        Map storage map, uint start
     ) internal view returns (LockInfo1155[] memory) {
         uint len = map._keys.length();
+        if(len > start){
+            if(len - start > 500){
+                len = start + 500;
+            }
+        }else{
+            return new LockInfo1155[](0);
+        }
         uint[] memory myKeys = map._keys.values();
         uint total = 0;
-        for (uint i = 0; i < len; i++){
+        for (uint i = start; i < len; i++){
             LockMap storage lm = map._values[myKeys[i]];
             total += lm.length();
         }
         LockInfo1155[] memory lockInfos = new LockInfo1155[](total);
         uint counter = 0;
-        for (uint i = 0; i < len; i++){
+        for (uint i = start; i < len; i++){
             LockMap storage lm = map._values[myKeys[i]];
             (address[] memory lpAddresses, SubLockInfo[] memory lpSubLockInfos) = lm.entries();
             uint lpLength = lpAddresses.length;

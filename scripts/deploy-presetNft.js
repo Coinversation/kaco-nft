@@ -4,6 +4,8 @@ async function main() {
     const alpacaNftAddress = "0xe85d7b8f4c0c13806e158a1c9d7dcb33140cdc46";
     const kacoNftAddress = "0x46F36F9FE211600417D9d24c014a154052ABC960";
     const pancakeNftAddress = "0xdf7952b35f24acf7fc0487d01c8d5690a60dba07";
+    const alpieNftAddress = "0x57A7c5d10c3F87f5617Ac1C60DA60082E44D539e";
+    const moonpotAddress = "0x6798f4E7dA4Fc196678d75e289A9d4801C3C849E";
 
     // const NFT = await ethers.getContractFactory("ERC721PresetMinterPauserAutoId");
     // console.log("NFT Deploying...");
@@ -26,11 +28,11 @@ async function main() {
     const factory = NFT100Factory.attach(factoryAddress);
 
     console.log("creating nft100Pair...")
-    await factory.nft100Pair("PANCAKE NFT100", "KCAKE", pancakeNftAddress, 721);
+    await factory.nft100Pair("MOONPOT NFT", "KPOT", moonpotAddress, 1155);
 
-    await sleep(30000)
+    await sleep(40000)
     console.log("nftToToken...")
-    const nftPair = await factory.nftToToken(pancakeNftAddress)
+    const nftPair = await factory.nftToToken(moonpotAddress)
     console.log("nftPair deployed to:", nftPair);
 
     // await sleep(60000);

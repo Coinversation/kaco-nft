@@ -29,8 +29,8 @@ contract NFT100Pair1155 is
         __NFT100Common_init_(_name, _symbol, _nftAddress, 1155);
     }
 
-    function getLockInfos() external view returns (LockInfo1155[] memory){
-        return lockInfoMap.entries();
+    function getLockInfos(uint start) external view returns (LockInfo1155[] memory){
+        return lockInfoMap.entries(start);
     }
 
     function getAmountById(uint id) private view returns (uint){
