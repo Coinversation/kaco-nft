@@ -12,7 +12,7 @@ abstract contract NFT100Common is ERC20Upgradeable
     uint256 public nftValue;
 
     bool public isWhiteListEnabled;
-    mapping(uint => bool) public whiteList;
+    mapping(uint => uint) public whiteList;
 
     event Withdraw(uint256[] indexed _tokenIds, uint256[] indexed amounts);
 
@@ -77,16 +77,15 @@ abstract contract NFT100Common is ERC20Upgradeable
         require(msg.sender == factory, "unauthorized");
         uint len = ids.length;
         for(uint i; i < len; i = i + 2){
-            uint end = ids[i + 1];
-            for(uint id = ids[i]; id < end; id++){
-                whiteList[id] = true;
-            }
+            whiteList[ids[i]] = ids[i + 1];
         }
     }
 
     function whiteListCheck(uint id) internal view{
         if(isWhiteListEnabled){
-            require(whiteList[id], "blocked");
+            uint256 bucket = id >> 8;
+            uint256 mask = 1 << (id & 0xff);
+            require(whiteList[bucket] & mask != 0, "blocked");
         }
     }
 
