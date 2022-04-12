@@ -10,7 +10,7 @@ import "./SubLockInfoMap1155.sol";
 struct LockInfo1155 {
     uint id;
     address unlocker;
-    uint24 blockNum;
+    uint64 blockNum;
     uint amount;
 }
 

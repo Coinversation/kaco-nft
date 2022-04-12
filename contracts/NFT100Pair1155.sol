@@ -97,7 +97,7 @@ contract NFT100Pair1155 is
         uint256 fee = IFactory(factory).fee();
         address feeTo = IFactory(factory).feeTo();
 
-        (address referral, address recipient, uint24[] memory unlockBlocks) = decodeParams(
+        (address referral, address recipient, uint64[] memory unlockBlocks) = decodeParams(
             data,
             operator
         );
@@ -128,7 +128,7 @@ contract NFT100Pair1155 is
     function setLockBlock1155(address operator,
         uint256 id,
         uint256 amount,
-        uint24 _unlockBlock) private returns (uint256){
+        uint64 _unlockBlock) private returns (uint256){
         LockMap storage lm = lockInfoMap.get(id);
         SubLockInfo storage subLockInfo;
         if(_unlockBlock == 0){
@@ -156,12 +156,12 @@ contract NFT100Pair1155 is
 
     /* param data: default is "0x0". 
         format:
-        let data = ethers.utils.solidityPack(["address", "address", "uint24","uint24"...], ["referral address", "recipient address", unlockBlockNumber1, unlockBlockNumber2...])
+        let data = ethers.utils.solidityPack(["address", "address", "uint64","uint64"...], ["referral address", "recipient address", unlockBlockNumber1, unlockBlockNumber2...])
 
         note: The order of UnlockBlockNumber must correspond to IndexID of the ids
 
         e.g.
-        let data = ethers.utils.solidityPack(["address", "address", "uint24","uint24"], ["0xFB83a67784F110dC658B19515308A7a95c2bA33A", "0xFB83a67784F110dC658B19515308A7a95c2bA33A", 11011286, 11011286])
+        let data = ethers.utils.solidityPack(["address", "address", "uint64","uint64"], ["0xFB83a67784F110dC658B19515308A7a95c2bA33A", "0xFB83a67784F110dC658B19515308A7a95c2bA33A", 11011286, 11011286])
         ethers.utils.defaultAbiCoder.encode(["address", "address", "uint256[]", "uint256[]", "bytes"], ["0xFB83a67784F110dC658B19515308A7a95c2bA33A", "0xFB83a67784F110dC658B19515308A7a95c2bA33A", [100, 101], [1, 100], data]);
     */
     function onERC1155BatchReceived(
@@ -182,7 +182,7 @@ contract NFT100Pair1155 is
         uint256 fee = IFactory(factory).fee();
         address feeTo = IFactory(factory).feeTo();
 
-        (address referral, address recipient, uint24[] memory unlockBlocks) = decodeParams(
+        (address referral, address recipient, uint64[] memory unlockBlocks) = decodeParams(
             data,
             operator
         );

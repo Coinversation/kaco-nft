@@ -5,16 +5,16 @@ let NFT100Factory;
 let factoryInstance;
 
 async function main() {
-    // const NFT100Pair721 = await ethers.getContractFactory("NFT100Pair721");
-    // console.log("Pair721 Deploying...");
-    // const pair721Instance = await NFT100Pair721.deploy();
-    // console.log("Pair721 deployed to:", pair721Instance.address);
+    const NFT100Pair721 = await ethers.getContractFactory("NFT100Pair721");
+    console.log("Pair721 Deploying...");
+    const pair721Instance = await NFT100Pair721.deploy();
+    console.log("Pair721 deployed to:", pair721Instance.address);
 
-    // await sleep(60000);
-    // await hre.run("verify:verify", {
-    //     address: pair721Instance.address,
-    //     contract: "contracts/NFT100Pair721.sol:NFT100Pair721"
-    // });
+    await sleep(30000);
+    await hre.run("verify:verify", {
+        address: pair721Instance.address,
+        contract: "contracts/NFT100Pair721.sol:NFT100Pair721"
+    });
 
 
     const NFT100Pair1155 = await ethers.getContractFactory("NFT100Pair1155");
@@ -27,8 +27,6 @@ async function main() {
         address: pair1155Instance.address,
         contract: "contracts/NFT100Pair1155.sol:NFT100Pair1155"
     });
-
-
 }
 
 

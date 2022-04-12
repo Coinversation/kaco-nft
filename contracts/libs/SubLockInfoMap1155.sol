@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 
 struct SubLockInfo {
-    uint24 blockNum;
+    uint64 blockNum;
     uint amount;
 }
 

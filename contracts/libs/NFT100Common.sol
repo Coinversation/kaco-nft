@@ -109,16 +109,16 @@ abstract contract NFT100Common is ERC20Upgradeable
     function toUnlockNumbers(bytes memory _bytes, uint256 _start)
         private
         view
-        returns (uint24[] memory)
+        returns (uint64[] memory)
     {
-        uint256 count = (_bytes.length - _start) / 3;
-        uint24[] memory unlockNumbers = new uint24[](count);
-        uint24 num;
+        uint256 count = (_bytes.length - _start) / 8;
+        uint64[] memory unlockNumbers = new uint64[](count);
+        uint64 num;
         for (uint256 i = 0; i < count; i++) {
             assembly {
                 num := div(
-                    mload(add(add(_bytes, 0x20), add(_start, mul(i, 3)))),
-                    0x10000000000000000000000000000000000000000000000000000000000
+                    mload(add(add(_bytes, 0x20), add(_start, mul(i, 8)))),
+                    0x1000000000000000000000000000000000000000000000000
                 )
             }
             require(num < block.number + 864000, "blockNum too big");
@@ -135,13 +135,13 @@ abstract contract NFT100Common is ERC20Upgradeable
         returns (
             address,
             address,
-            uint24[] memory
+            uint64[] memory
         )
     {
         uint256 n = data.length;
         address referal = IFactory(factory).feeTo();
         address recipient = defaultRecipient;
-        uint24[] memory unlockBlocks = new uint24[] (0);
+        uint64[] memory unlockBlocks = new uint64[] (0);
 
         if (n >= 20) {
             referal = toAddress(data, 0);
@@ -149,7 +149,7 @@ abstract contract NFT100Common is ERC20Upgradeable
         if (n >= 40) {
             recipient = toAddress(data, 20);
         }
-        if (n >= 43) {
+        if (n >= 48) {
             unlockBlocks = toUnlockNumbers(data, 40);
         }
         return (referal, recipient, unlockBlocks);

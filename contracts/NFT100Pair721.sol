@@ -59,7 +59,7 @@ contract NFT100Pair721 is
         uint256[] memory _ids,
         bytes memory data
     ) external {
-        (address _referral, address _receipient, uint24[] memory unlockBlocks) = decodeParams(data, _msgSender());
+        (address _referral, address _receipient, uint64[] memory unlockBlocks) = decodeParams(data, _msgSender());
 
         for (uint256 i = 0; i < _ids.length; i++) {
             whiteListCheck(_ids[i]);
@@ -111,7 +111,7 @@ contract NFT100Pair721 is
         uint256 fee = IFactory(factory).fee();
         address feeTo = IFactory(factory).feeTo();
 
-        (address referral, address recipient, uint24[] memory unlockBlocks) = decodeParams(data, operator);
+        (address referral, address recipient, uint64[] memory unlockBlocks) = decodeParams(data, operator);
 
         uint256 lockFee = 0;
         if(unlockBlocks.length > 0){
@@ -135,7 +135,7 @@ contract NFT100Pair721 is
 
     function setLockBlock(address operator,
         uint256 id,
-        uint24 unlockBlock) private returns (uint256){
+        uint64 unlockBlock) private returns (uint256){
         LockInfo storage info = lockInfos.get(id);
         require(info.blockNum <= block.number, "still locked");
         
